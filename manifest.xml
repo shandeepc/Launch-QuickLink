@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE Plugin PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Plugin displayName="Launch QuickLink" minSystemVersion="8.0" name="LaunchQuickLink" rightRequired="" version="1.0">
+  <Attributes>
+    <Map>
+      <entry key="minUpgradableVersion" value="0.1"/>
+      <entry key="snippets">
+        <value>
+          <List>
+            <Snippet regexPattern=".*home.jsf" rightRequired="">
+              <Scripts>
+                <String>ui/js/LaunchQuickLink.js</String>
+              </Scripts>
+              <StyleSheets/>
+            </Snippet>
+          </List>
+        </value>
+      </entry>
+    </Map>
+  </Attributes>
+</Plugin>

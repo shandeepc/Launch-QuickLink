@@ -4,7 +4,7 @@ Version - 1.0
 Author - Shandeep - https://shandeep.dev
 */
 
-function observerForMutation(selector) {
+function observerForLuickQinkMutation(selector) {
     return new Promise(resolve => {
         if (document.querySelector(selector)) {
             return resolve(document.querySelector(selector));
@@ -24,7 +24,7 @@ function observerForMutation(selector) {
     });
 }
 
-observerForMutation('#quicklinkPanel').then((elm) => {
+observerForLuickQinkMutation('#quicklinkPanel').then((elm) => {
 		const params = new URLSearchParams(window.location.search);
 		if (params.has('LaunchQL')) { 
 			const LaunchQL = params.get('LaunchQL');

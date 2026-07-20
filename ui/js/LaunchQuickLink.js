@@ -35,18 +35,15 @@ observerForLuickQinkMutation('#quicklinkPanel').then((elm) => {
 					const qLink = qLinks[i];
 					const qLinkName = qLink.text.trim();
 					if(qLinkName === LaunchQL) {
-						console.log("Launching QuickLink - " + qLink);
 						qLink.click();
                         break;
 					} else if((!LaunchQLFor || LaunchQLFor.toLowerCase() === "me") && qLinkName === "For Me") {
 						if(qLink.parentElement.parentElement.parentElement.children[0].text.trim() === LaunchQL) {
-							console.log("Launching QuickLink For Mw - " + qLink);
 							qLink.click();
 	                        break;
 						}
 					} else if(LaunchQLFor && LaunchQLFor.toLowerCase() === "others" && qLinkName === "For Others") {
 						if(qLink.parentElement.parentElement.parentElement.children[0].text.trim() === LaunchQL) {
-							console.log("Launching QuickLink For Other - " + qLink);
 							qLink.click();
 	                        break;
 						}

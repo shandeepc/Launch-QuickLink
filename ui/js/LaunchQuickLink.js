@@ -30,18 +30,25 @@ function observerForLuickQinkMutation(selector) {
  * @returns {Promise<boolean>} Resolves to true if action is 'workflow', false otherwise
  */
 function isWorkflowQuickLink(qlName) {
-    var contextPath = (typeof SailPoint !== 'undefined' && SailPoint.CONTEXT_PATH)
+    var contextPath = (typeof SailPoint !== 'undefined' && typeof SailPoint.CONTEXT_PATH === 'string')
         ? SailPoint.CONTEXT_PATH
-        : '/identityiq';
+        : '';
     var restUrl = contextPath + '/ui/rest/quickLinks/' + encodeURIComponent(qlName);
 
-    return fetch(restUrl, {
+    var csrfToken = (typeof PluginHelper !== 'undefined' && typeof PluginHelper.getCsrfToken === 'function')
+        ? PluginHelper.getCsrfToken()
+        : '';
+
+    const requestOptions = {
         method: 'GET',
         headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-XSRF-TOKEN': csrfToken
         },
         credentials: 'same-origin'
-    })
+    };
+
+    return fetch(restUrl, requestOptions)
     .then(function(response) {
         if (response.ok) {
             return response.json();

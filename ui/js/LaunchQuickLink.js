@@ -42,10 +42,10 @@ function escapeHtml(str) {
 /**
  * Displays a confirmation dialog styled identically to SailPoint IdentityIQ's native system modal.
  * Adapts automatically to the system's configured primary/info color theme.
- * @param {string} qlName - System name of the QuickLink
+ * @param {string} displayName - User-facing display name of the QuickLink
  * @returns {Promise<boolean>} Resolves to true if user clicks Launch, false if Cancel/Esc/close
  */
-function showQuickLinkConfirmationModal(qlName) {
+function showQuickLinkConfirmationModal(displayName) {
     return new Promise(function(resolve) {
         var existingModal = document.getElementById('qlLaunchModalWrapper');
         if (existingModal) {
@@ -67,7 +67,7 @@ function showQuickLinkConfirmationModal(qlName) {
             '          <div id="modal-content">' +
             '            <div class="ng-scope">' +
             '              <div class="ng-binding ng-scope">' +
-            '                You are requesting to launch the workflow <b>' + escapeHtml(qlName) + '</b>. Click <b>Launch</b> to proceed or <b>Cancel</b> to stay on this page.' +
+            '                You are requesting to launch the workflow <b>' + escapeHtml(displayName) + '</b>. Click <b>Launch</b> to proceed or <b>Cancel</b> to stay on this page.' +
             '              </div>' +
             '            </div>' +
             '          </div>' +
@@ -180,12 +180,50 @@ function isWorkflowQuickLink(qlName) {
 }
 
 /**
+ * Resolves the user-facing display name of a QuickLink from the DOM.
+ * For submenu items (e.g. "For Me" / "For Others"), extracts the parent dropdown label.
+ * For single links, uses the link's text content.
+ * @param {HTMLElement} link - The matched anchor element
+ * @param {string} fallbackName - Fallback name if no display label is found
+ * @returns {string} The display name
+ */
+function getQuickLinkDisplayName(link, fallbackName) {
+    if (!link) {
+        return fallbackName;
+    }
+
+    // Check if inside a dropdown submenu (e.g. For Me / For Others submenu)
+    var submenu = link.closest ? link.closest('.dropdown-submenu') : null;
+    if (!submenu && link.parentElement && link.parentElement.parentElement && link.parentElement.parentElement.parentElement) {
+        var potentialSubmenu = link.parentElement.parentElement.parentElement;
+        if (potentialSubmenu.classList && potentialSubmenu.classList.contains('dropdown-submenu')) {
+            submenu = potentialSubmenu;
+        }
+    }
+
+    if (submenu) {
+        var toggle = submenu.querySelector('.dropdown-toggle');
+        if (toggle && toggle.textContent && toggle.textContent.trim()) {
+            return toggle.textContent.trim();
+        }
+    }
+
+    // Direct link (no submenu)
+    var directText = link.textContent ? link.textContent.trim() : '';
+    if (directText && directText.toLowerCase() !== 'for me' && directText.toLowerCase() !== 'for others') {
+        return directText;
+    }
+
+    return fallbackName;
+}
+
+/**
  * Finds the appropriate QuickLink anchor element by matching the canonical QuickLink name
  * extracted from the chooseQuickLink(...) arguments rather than relying on display text.
  * @param {NodeList|Array} qLinks - List of anchor elements
  * @param {string} targetQL - The requested QuickLink name
  * @param {string} targetQLFor - Target recipient mode ('me' or 'others')
- * @returns {Object|null} Matching object with element, name, and hasIdentityId, or null
+ * @returns {Object|null} Matching object with element, name, displayName, and hasIdentityId, or null
  */
 function findMatchingQuickLink(qLinks, targetQL, targetQLFor) {
     var forMode = (targetQLFor || 'me').trim().toLowerCase();
@@ -204,6 +242,7 @@ function findMatchingQuickLink(qLinks, targetQL, targetQLFor) {
                 matchingLinks.push({
                     element: link,
                     name: qlName,
+                    displayName: getQuickLinkDisplayName(link, qlName),
                     hasIdentityId: Boolean(identityId)
                 });
             }
@@ -252,7 +291,8 @@ observerForLuickQinkMutation('#quicklinkPanel').then(function(elm) {
     // Check if the target QuickLink is a workflow-type action before running
     isWorkflowQuickLink(match.name).then(function(isWorkflow) {
         if (isWorkflow) {
-            showQuickLinkConfirmationModal(match.name).then(function(confirmed) {
+            var displayName = match.displayName || match.name;
+            showQuickLinkConfirmationModal(displayName).then(function(confirmed) {
                 if (!confirmed) {
                     console.log('Launch QuickLink: Workflow execution cancelled by user for "' + match.name + '".');
                     return;

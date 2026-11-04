@@ -61,13 +61,13 @@ function showQuickLinkConfirmationModal(displayName) {
             '    <div class="modal-content" uib-modal-transclude="">' +
             '      <div id="completionDialog" role="dialog" aria-labelledby="modalTitle" class="info-modal">' +
             '        <div class="modal-header">' +
-            '          <h4 class="modal-title" id="modalTitle">Launch Workflow</h4>' +
+            '          <h4 class="modal-title" id="modalTitle">Launch QuickLink</h4>' +
             '        </div>' +
             '        <div class="modal-body">' +
             '          <div id="modal-content">' +
             '            <div class="ng-scope">' +
             '              <div class="ng-binding ng-scope">' +
-            '                You are requesting to launch the workflow <b>' + escapeHtml(displayName) + '</b>. Click <b>Launch</b> to proceed or <b>Cancel</b> to stay on this page.' +
+            '                You are requesting to launch the QuickLink <b>' + escapeHtml(displayName) + '</b>. Click <b>Launch</b> to proceed or <b>Cancel</b> to stay on this page.' +
             '              </div>' +
             '            </div>' +
             '          </div>' +

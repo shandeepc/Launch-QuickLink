@@ -25,6 +25,121 @@ function observerForLuickQinkMutation(selector) {
 }
 
 /**
+ * Escapes HTML characters in strings for safe insertion into DOM templates.
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * Displays a confirmation dialog styled identically to SailPoint IdentityIQ's native system modal.
+ * Adapts automatically to the system's configured primary/info color theme.
+ * @param {string} qlName - System name of the QuickLink
+ * @returns {Promise<boolean>} Resolves to true if user clicks Launch, false if Cancel/Esc/close
+ */
+function showQuickLinkConfirmationModal(qlName) {
+    return new Promise(function(resolve) {
+        var existingModal = document.getElementById('qlLaunchModalWrapper');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        var wrapper = document.createElement('div');
+        wrapper.id = 'qlLaunchModalWrapper';
+
+        wrapper.innerHTML =
+            '<div class="modal fade in" role="dialog" style="display: block; z-index: 1050;" tabindex="-1">' +
+            '  <div class="modal-dialog" aria-labelledby="modalTitle">' +
+            '    <div class="modal-content" uib-modal-transclude="">' +
+            '      <div id="completionDialog" role="dialog" aria-labelledby="modalTitle" class="info-modal">' +
+            '        <div class="modal-header">' +
+            '          <h4 class="modal-title" id="modalTitle">Launch Workflow</h4>' +
+            '        </div>' +
+            '        <div class="modal-body">' +
+            '          <div id="modal-content">' +
+            '            <div class="ng-scope">' +
+            '              <div class="ng-binding ng-scope">' +
+            '                You are requesting to launch the workflow <b>' + escapeHtml(qlName) + '</b>. Click <b>Launch</b> to proceed or <b>Cancel</b> to stay on this page.' +
+            '              </div>' +
+            '            </div>' +
+            '          </div>' +
+            '        </div>' +
+            '        <div class="modal-footer bg-light lt ng-scope">' +
+            '          <button type="button" id="qlModalCancelBtn" class="btn btn-cancel">Cancel</button>' +
+            '          <button type="button" id="qlModalConfirmBtn" class="btn btn-info btn-default">Launch</button>' +
+            '          <p id="inProgress" class="sr-only ng-binding"></p>' +
+            '        </div>' +
+            '      </div>' +
+            '    </div>' +
+            '  </div>' +
+            '</div>' +
+            '<div class="modal-backdrop fade in" style="z-index: 1040;"></div>';
+
+        document.body.appendChild(wrapper);
+        document.body.classList.add('modal-open');
+
+        var isResolved = false;
+        function finish(result) {
+            if (isResolved) return;
+            isResolved = true;
+            document.removeEventListener('keydown', handleKeyDown);
+            document.body.classList.remove('modal-open');
+            if (wrapper && wrapper.parentNode) {
+                wrapper.parentNode.removeChild(wrapper);
+            }
+            resolve(result);
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                finish(false);
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        var confirmBtn = wrapper.querySelector('#qlModalConfirmBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function() {
+                finish(true);
+            });
+            confirmBtn.focus();
+        }
+
+        var cancelBtn = wrapper.querySelector('#qlModalCancelBtn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                finish(false);
+            });
+        }
+
+        var modalElement = wrapper.querySelector('.modal');
+        if (modalElement) {
+            modalElement.addEventListener('click', function(e) {
+                if (e.target === modalElement) {
+                    finish(false);
+                }
+            });
+        }
+
+        var backdrop = wrapper.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                finish(false);
+            });
+        }
+    });
+}
+
+/**
  * Checks whether a QuickLink is a workflow-type action by querying IdentityIQ's UI REST service.
  * @param {string} qlName - System name of the QuickLink
  * @returns {Promise<boolean>} Resolves to true if action is 'workflow', false otherwise
@@ -137,18 +252,17 @@ observerForLuickQinkMutation('#quicklinkPanel').then(function(elm) {
     // Check if the target QuickLink is a workflow-type action before running
     isWorkflowQuickLink(match.name).then(function(isWorkflow) {
         if (isWorkflow) {
-            var confirmed = window.confirm(
-                'Launch QuickLink Confirmation:\n\n' +
-                'You are requesting to launch the workflow QuickLink "' + match.name + '".\n\n' +
-                'Do you want to proceed?'
-            );
-            if (!confirmed) {
-                console.log('Launch QuickLink: Workflow execution cancelled by user for "' + match.name + '".');
-                return;
-            }
+            showQuickLinkConfirmationModal(match.name).then(function(confirmed) {
+                if (!confirmed) {
+                    console.log('Launch QuickLink: Workflow execution cancelled by user for "' + match.name + '".');
+                    return;
+                }
+                console.log('Launch QuickLink: Launching QuickLink "' + match.name + '"' + (match.hasIdentityId ? ' (For Me)' : ' (For Others)'));
+                match.element.click();
+            });
+        } else {
+            console.log('Launch QuickLink: Launching QuickLink "' + match.name + '"' + (match.hasIdentityId ? ' (For Me)' : ' (For Others)'));
+            match.element.click();
         }
-
-        console.log('Launch QuickLink: Launching QuickLink "' + match.name + '"' + (match.hasIdentityId ? ' (For Me)' : ' (For Others)'));
-        match.element.click();
     });
 });

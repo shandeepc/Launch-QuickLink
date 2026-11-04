@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE Plugin PUBLIC "sailpoint.dtd" "sailpoint.dtd">
-<Plugin displayName="Launch QuickLink" minSystemVersion="8.0" name="LaunchQuickLink" rightRequired="" version="1.1">
+<Plugin displayName="Launch QuickLink" minSystemVersion="8.0" name="LaunchQuickLink" rightRequired="" version="1.0">
   <Attributes>
     <Map>
       <entry key="minUpgradableVersion" value="0.1"/>
@@ -15,7 +15,7 @@
             </Attributes>
             <Description>Form for Launch QuickLink</Description>
             <Section columns="2" name="Details" type="text">
-              <Field displayName="Version" value="1.1" type="string" displayType="textarea" readOnly="true">
+              <Field displayName="Version" value="1.0" type="string" displayType="textarea" readOnly="true">
                 <Attributes>
                   <Map>
                     <entry key="contentIsEscaped" value="true"/>

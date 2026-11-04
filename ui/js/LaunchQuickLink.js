@@ -1,6 +1,6 @@
 /*
 Project - Launch QuickLink - Plugin
-Version - 1.1
+Version - 1.0
 Author - Shandeep - https://shandeep.dev
 */
 

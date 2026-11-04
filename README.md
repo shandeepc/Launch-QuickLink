@@ -3,7 +3,7 @@
 # Launch QuickLink
 
 #### Plugin Name: Launch QuickLink
-#### Plugin Version: 1.1
+#### Plugin Version: 1.0
 #### Supported IdentityIQ Versions: IdentityIQ 8.0, 8.1, 8.2, 8.3, 8.4 or above
 #### Supported Browsers: Any modern Chromium or Firefox browser (Internet Explorer not supported)
 #### Primary Function: Launch QuickLinks directly with URL query parameters.

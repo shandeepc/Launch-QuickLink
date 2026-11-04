@@ -13,7 +13,7 @@
 
 ## Installation
 
-* Simply drag and drop the plugin `.zip` into IdentityIQ Plugin Management to install.
+* Simply drag and drop the plugin `.zip` into IdentityIQ Plugin page to install.
 
 ![image](images/Install.PNG)
 
